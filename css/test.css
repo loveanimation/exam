@@ -1,0 +1,114 @@
+#app .header {
+  width: 100%;
+  height: 8vh;
+  background-color: aqua;
+}
+#app .header .header_l {
+  color: #fff;
+  font-size: 20px;
+  width: 160px;
+  text-align: center;
+  height: 8vh;
+  line-height: 8vh;
+  padding-left: 20px;
+  float: left;
+}
+#app .header .header_r {
+  width: 500px;
+  height: 8vh;
+  line-height: 8vh;
+  float: right;
+  padding-right: 20px;
+  font-size: 14px;
+  color: #fff;
+}
+#app .header .header_r .header_r_time {
+  width: 150px;
+  float: left;
+}
+#app .header .header_r .header_r_user {
+  float: right;
+}
+#app .header .header_r .header_r_user span {
+  display: inline-block;
+}
+#app .header .header_r .header_r_user span:nth-child(2) {
+  margin-left: 10px;
+}
+#app .test_info {
+  width: 100%;
+  overflow: hidden;
+  height: 92vh;
+}
+#app .test_info .test_info_l {
+  width: 250px;
+  float: left;
+  background-color: #fff;
+  height: 92vh;
+  border-right: 1px solid #eee;
+}
+#app .test_info .test_info_l .test_info_list h4 {
+  font-size: 14px;
+  text-align: center;
+  height: 60px;
+  line-height: 60px;
+  font-weight: bold;
+}
+#app .test_info .test_info_l .test_info_list .el-button,
+#app .test_info .test_info_l .test_info_list .el-buttton--default {
+  background-color: #ddd;
+  margin: 5px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  padding: 0;
+}
+#app .test_info .test_info_r {
+  overflow: hidden;
+}
+#app .test_info .test_info_r .test_info_item {
+  height: 80vh;
+  border-bottom: 1px solid #eee;
+}
+#app .test_info .test_info_r .test_info_state {
+  width: 100%;
+  text-align: center;
+  height: 10vh;
+  line-height: 10vh;
+  border-bottom: 1px solid #eee;
+}
+#app .test_info .test_info_r .tishi {
+  color: #F56C6C;
+  font-weight: bold;
+}
+#app .test_info .test_info_r .test_info_aniswer {
+  margin: 0 30px;
+}
+#app .test_info .test_info_r p {
+  font-size: 20px;
+  height: 60px;
+  line-height: 60px;
+}
+#app .test_info .test_info_r li {
+  line-height: 50px;
+  font-size: 14px;
+  color: #666;
+  margin-left: 20px;
+}
+#app .test_info .test_info_r .el-radio,
+#app .test_info .test_info_r .el-checkbox {
+  line-height: 50px;
+  margin-left: 20px;
+  display: block;
+}
+#app .test_info .test_info_r .option {
+  display: flex;
+  justify-content: flex-end;
+  margin: 5px;
+}
+#app .test_info .test_info_r .option .el-button,
+#app .test_info .test_info_r .option .is-round,
+#app .test_info .test_info_r .option .el-button--primary {
+  background: linear-gradient(90deg, #0162c8, #55e7fc);
+}

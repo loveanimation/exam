@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/reg.css">
+    <script src="../lib/vue.min.js"></script>
+    <script src="../lib/axios.js"></script>
+    <link rel="stylesheet" href="../lib/element/index.css">
+</head>
+
+<body>
+    <div class="test_box">
+        <div class="content">
+            <div>考试系统欢迎你的使用</div>
+            <div>You are welcome to use the examination system</div>
+            <div class="form">
+                <ul>
+
+                    <li>
+                        <label>用户名:</label>
+                        <input type="text" class="user_info" id="card" v-model="card" placeholder="请输入用户名">
+                    </li>
+                    <li>
+                        <label>密 码:</label>
+                        <input type="password" class="user_info" v-model="pwd" id="pwd" placeholder="请输入密码">
+                    </li>
+                </ul>
+            </div>
+            <div class="reg">
+                <el-button :plain="true" @click="reg">登录</el-button>
+            </div>
+        </div>
+    </div>
+    <script src="../lib/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../lib/element/index.js"></script>
+
+    <script>
+        // console.log(axios.get)
+        // Vue.use(axios)
+        new Vue({
+            el: '.test_box',
+            data() {
+                return {
+                    card: "",
+                    pwd: ''
+                }
+            },
+            methods: {
+                reg() {
+                    const { card, pwd } = this;
+                    if (card == '') {
+                        this.$message.error('请填写用户名')
+                        return;
+                    }
+                    if (pwd.length < 6) {
+                        this.$message.error('密码不能小于6位')
+                        return;
+                    }
+                    axios.get(`./php/login.php?user=${card}&pwd=${pwd}`).then(res => {
+                        if (res.data == 'ok') {
+                            window.sessionStorage.setItem('user', card);
+                            window.location.href = 'user_info.html';
+                        } else {
+                            this.$message.error('用户名或密码不正确!')
+                        }
+                    })
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>

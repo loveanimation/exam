@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试系统</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/test.css">
+    <link rel="stylesheet" href="./font-awesome-4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="./lib/element/radio.css"> -->
+    <script src="./lib/vue.min.js"></script>
+    <script src="./lib/axios.js"></script>
+    <link rel="stylesheet" href="./lib/element/index.css">
+</head>
+
+<body>
+    <div id="app" v-loading="loading">
+        <div class="header">
+            <div class="header_l">考试系统</div>
+            <div class="header_r">
+                <div class="header_r_time">
+                    剩余: <span class="fa fa-clock-o"> &nbsp;</span><span id="times">{{times}}</span>
+                </div>
+                <div class="header_r_user">
+                    <span>
+                        <label class="fa fa-user-circle"></label>
+                        <label id="user">{{ user }}</label>
+                    </span>
+                    <span>
+                        <i class="fa fa-power-off"></i>
+                        <span style="cursor: pointer;" @click="exit">退出</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="test_info" v-loading="loading2">
+            <div class="test_info_l">
+                <div class="test_info_list">
+                    <h4>答题选项卡</h4>
+                    <!-- 按钮是否可用及题的处理 -->
+                    <el-button v-for="i in max_num" :disabled="i>self_max"
+                        @click="title_num=i;rand_test();view();next_btn=title_num==max_num?true:false;prev_btn=title_num==1?true:false;">
+                        {{ i}}
+                    </el-button>
+                </div>
+            </div>
+            <div class="test_info_r">
+                <div class="test_info_item">
+                    <div class="test_info_state">
+                        <span>答题状态:</span>
+                        <span>{{ data_mes }}</span>
+                        <span class="tishi"> <i class="fa fa-warning"></i> 提示:选择答案后点击上一题或下一题提交答案</span>
+                    </div>
+                    <!-- 答题区 -->
+                    <div class="test_info_aniswer">
+                        <p>
+                            <span>{{ title_num }}.</span>
+                            <span>{{ test_list.titles }}</span>
+                        </p>
+                        <!-- 题型选择性显示 -->
+                        <div v-if="test_list.types=='单选'">
+                            <!-- 单选 -->
+                            <el-radio-group v-model="radio">
+                                <el-radio :label="'A'">{{ test_list.A }}</el-radio>
+                                <el-radio :label="'B'">{{ test_list.B }}</el-radio>
+                                <el-radio :label="'C'" v-if="test_list.C!='无'">{{ test_list.C }}</el-radio>
+                                <el-radio :label="'D'" v-if="test_list.D!='无'">{{ test_list.D }}</el-radio>
+                            </el-radio-group>
+                        </div>
+                        <div v-IF="test_list.types=='多选'">
+                            <!-- 多选 -->
+                            <el-checkbox-group v-model="checkList">
+                                <el-checkbox label="A">{{ test_list.A }}</el-checkbox>
+                                <el-checkbox label="B">{{ test_list.B }}</el-checkbox>
+                                <el-checkbox label="C" v-if="test_list.C!='无'">{{ test_list.C }}</el-checkbox>
+                                <el-checkbox label="D" v-if="test_list.D!='无'">{{ test_list.D }}</el-checkbox>
+                            </el-checkbox-group>
+                        </div>
+                    </div>
+                </div>
+                <div class="option">
+                    <el-button type="primary" round @click="title_prev" :disabled="prev_btn"
+                        style=" background:linear-gradient(90deg,#0162c8,#55e7fc) ;">上一题
+                    </el-button>
+                    <el-button @click="title_next" type="primary" round
+                        style="background: linear-gradient(90deg,#755bea,#ff72c0);" :disabled="next_btn">下一题
+                    </el-button>
+                    <el-button type="primary" round @click="sub">交卷</el-button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- 引入组件库 -->
+    <script src="./lib/element/index.js"></script>
+    <script>
+        var VM = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    user: '刘二花',
+                    times: '',      // 倒计时
+                    loading: true,
+                    radio: '',      // 单选的value
+                    checkList: [], // 多选的value
+                    falg: true,   // 单选true,多选false
+                    max_num: 5,   // 题的数量
+                    data_mes: "准备答题",
+                    title_num: 1,
+                    test_list: {},
+                    option_type: '',
+                    next_btn: false,
+                    prev_btn: true,
+                    self_max: 1,   // 自己一共做多少的题数,用于控制选项卡按钮
+                    loading2: true
+                }
+            },
+            mounted() {
+                if (!window.sessionStorage.getItem('user_codes')) {
+                    window.location.href = './index.html'
+                }
+                let time = setInterval(() => {
+                    axios.get(`./php/test_time.php?codes=${window.sessionStorage.getItem('user_codes')}`).then(res => {
+                        if (res.data['分'] < 10) {
+                            res.data['分'] = '0' + res.data['分']
+                        }
+                        if (res.data['秒'] < 10) {
+                            res.data['秒'] = '0' + res.data['秒']
+                        }
+                        this.times = `${res.data['时']}:${res.data['分']}:${res.data['秒']}`;
+                        this.user = res.data.names;
+                        this.loading = false;
+                        if (res.data == 'exit') {
+                            clearInterval(time);
+                            this.$alert('考试结束', {
+                                confirmButtonText: '确定',
+                                callback: action => {
+                                    window.location.href = './grade.html';
+                                }
+                            })
+                        }
+                    });
+                }, 1000)
+                this.rand_test();
+                axios.get(`./php/max_num.php`).then(res => {
+                    this.max_num = res.data;
+                })
+                this.view();   // 答题状态
+                this.self_maxs();
+            },
+            methods: {
+                sub() {
+                    this.action_title();   // 提交答案
+                    this.$confirm('即将交卷,是否确认?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        window.location.href = './grade.html';
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消交卷'
+                        });
+                    });
+                },
+                exit() {
+                    window.sessionStorage.removeItem('user_codes');
+                    window.location.href = './index.html'
+                },
+                rand_test() {   // 随机题初始化
+                    axios.get(`./php/rand_title.php?codes=${window.sessionStorage.getItem('user_codes')}&title_id=${this.title_num}`).then(res => {
+                        if (res.data == 'no') {
+                            this.rand_test();
+                        } else if (res.data == 'end') {
+                            this.loading2 = false;
+                            this.title_num--;
+                            this.$message.error('没题了,请联系管理员!!!')
+                        } else {
+                            this.test_list = res.data;
+                            this.title_num = res.data.title_len;
+                            this.option_type = res.data.types;
+                            // this.self_max=s
+                            this.loading2 = false;
+                        }
+                    })
+                }
+                , title_next() {  // 下一题
+                    this.loading2 = true;
+                    this.action_title();
+                    this.title_num = this.title_num - 0 + 1;
+                    if (this.title_num >= this.max_num) {   // 考试题数已经够了
+                        this.title_num = this.max_num;
+                        this.next_btn = true;
+                    }
+                    if (this.title_num >= this.self_max) {   // 自己所做的题数更新
+                        this.self_max = this.title_num;
+                    }
+                    this.prev_btn = false;
+                    this.rand_test();
+                    this.view();
+                }, title_prev() {  // 上一题
+                    this.action_title();
+                    this.title_num = this.title_num - 0 - 1;
+                    if (this.title_num <= 1) {   // 考试题数已经够了
+                        this.title_num = 1;
+                        this.prev_btn = true;
+                    }
+                    this.next_btn = false;
+                    this.rand_test();
+                    this.view();
+                }, view() {   // 答题状态
+                    let url = `./php/state.php?codes=${window.sessionStorage.getItem('user_codes')}&title_num=${this.title_num}`;
+                    axios.get(url).then(res => {
+                        if (res.data == 'empty') {
+                            this.radio = '';
+                            this.checkList = [];
+                            this.data_mes = '准备答题';
+                        } else {
+                            this.radio = res.data;
+                            this.checkList = res.data.split(',');
+                            this.data_mes = '修改答案';
+                        }
+                    })
+                }, self_maxs() {   // 自己做了多少题
+                    let url = `./php/self_max.php?codes=${window.sessionStorage.getItem('user_codes')}`;
+                    axios.get(url).then(res => {
+                        this.self_max = res.data;
+                    })
+                },
+                action_title() {   // 提交答案方法
+                    let val = '';
+                    if (this.option_type == '单选') {
+                        val = this.radio;
+                        // console.log(document.querySelector('input[type=radio]:checked').value)
+                    } else {
+                        // console.log(this.checkList.join());
+                        val = this.checkList.sort().join();   // 转字符串
+                    }
+                    axios.get(`./php/res.php?codes=${window.sessionStorage.getItem('user_codes')}&title_num=${this.title_num}&res=${val}&max_num=${this.max_num}`).then(res => {
+                        this.data_mes = res.data;
+                        this.loading = false;
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

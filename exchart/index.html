@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        ul {
+            display: flex;
+        }
+
+        li {
+            list-style: none;
+            float: left;
+            margin: 5px;
+        }
+    </style>
+    <!-- 引入 echarts.js -->
+    <script src="echarts.min.js"></script>
+
+    <link rel="stylesheet" href="../lib/element/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="one">
+            <ul>
+                <li v-for="(val,index) in dataArr" :key="index">
+                    <el-button type="primary" round @click="val.text++;add(index)">{{ val.title }}</el-button>
+                </li>
+            </ul>
+        </div>
+        <div id="main" style="width: 300px;height:400px;" ref="cav"></div>
+    </div>
+    <script src="../lib/vue.min.js"></script>
+    <script src="../lib/axios.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../lib/element/index.js"></script>
+    <script type="text/javascript">
+
+        var Vm = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    dataArr: [],
+                    names: [],
+                    myChart: '',
+                    option: {
+                        title: {
+                            text: '投票统计'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: ['票数']
+                        },
+                        xAxis: {
+                            data: []
+                        },
+                        yAxis: {},
+                        series: [{
+                            name: '票数',
+                            type: 'bar',
+                            data: []
+                        }]
+                    }
+                }
+            },
+            mounted() {
+                this.myChart = echarts.init(this.$refs.cav);
+                this.ajax();
+            },
+            methods: {
+                ajax() {
+                    axios.get('./select.php').then(res => {
+                        this.dataArr = [...res.data];
+
+                        this.dataArr.filter(val => {
+                            this.option.xAxis.data.push(val.title)
+                            this.option.series[0].data.push(val.text)
+                        });
+                        console.log(this.$refs.cav.style.width = this.dataArr.length * 150 + 'px')
+                        this.myChart.setOption(this.option);
+                    })
+                },
+                add(index) {
+                    let names = [], vote = [];
+                    this.dataArr.filter(val => {
+                        names.push(val.title);
+                        vote.push(val.text);
+                    });
+                    this.myChart.setOption({
+                        xAxis: {
+                            data: names
+                        },
+                        series: [{
+                            data: vote
+                        }]
+                    })
+                    axios.get(`./updata.php?id=${this.dataArr[index].id}&text=${this.dataArr[index].text}`).then(res => {
+                        console.log(res)
+                    })
+                }
+            },
+        })
+        // // 基于准备好的dom，初始化echarts实例
+        // var myChart = echarts.init(document.getElementById('main'));
+        // // 指定图表的配置项和数据
+        // var option = {
+        //     title: {
+        //         text: '投票统计'
+        //     },
+        //     tooltip: {},
+        //     legend: {
+        //         data: ['票数']
+        //     },
+        //     xAxis: {
+        //         data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+        //     },
+        //     yAxis: {},
+        //     series: [{
+        //         name: '票数',
+        //         type: 'bar',
+        //         data: [5, 20, 36, 10, 10, 20]
+        //     }]
+        // };
+
+        // // 使用刚指定的配置项和数据显示图表。
+        // myChart.setOption(option);
+    </script>
+</body>
+
+</html>

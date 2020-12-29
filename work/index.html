@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>表单注册</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F7F7F7;
+        }
+
+        ul {
+            margin: 0;
+            padding: 50px;
+            list-style: none;
+        }
+
+        .register {
+            width: 800px;
+            margin: 50px auto;
+            background-color: #FFF;
+            border: 1px solid #CCC;
+            border-radius: 5px;
+        }
+
+        li {
+            display: flex;
+            margin: 20px 0;
+        }
+
+        label,
+        input {
+            display: block;
+            float: left;
+            height: 46px;
+            font-size: 24px;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        label {
+            width: 200px;
+            line-height: 46px;
+            margin-right: 30px;
+            text-align: right;
+        }
+
+        input {
+            width: 320px;
+            padding: 8px;
+            line-height: 1;
+            outline: none;
+            position: relative;
+        }
+
+        input.code {
+            width: 120px;
+        }
+
+        input.verify {
+            width: 190px;
+            margin-left: 10px;
+        }
+
+        input.disabled {
+            background-color: #CCC !important;
+        }
+
+
+        .tips {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 40px;
+            text-align: center;
+        }
+
+        .tips p {
+            min-width: 300px;
+            max-width: 400px;
+            line-height: 40px;
+            margin: 0 auto;
+            color: #FFF;
+            display: none;
+            background-color: #C91623;
+        }
+
+        input.gray {
+            background-color: #ccc;
+        }
+    </style>
+    <script src="../lib/vue.min.js"></script>
+    <script src="../lib/axios.js"></script>
+    <link rel="stylesheet" href="../lib/element/index.css">
+</head>
+
+<body>
+    <div class="register">
+        <div id="ajaxForm">
+            <ul>
+                <li>
+                    <label for="">用户名</label>
+                    <input type="text" name="name" class="name" v-model="user">{{userflag}}
+                </li>
+                <li>
+                    <label for="">请设置密码</label>
+                    <input type="password" name="pass" class="pass" v-model="pwd">{{pwdflag}}{{ strength }}
+                </li>
+                <li>
+                    <label for="">短信验证码</label>
+                    <input type="text" name="code" class="code" v-model="usercode"><canvas id="canvas"></canvas>
+                    <a href="javascript:;" id="changeImg" @click="change">再换一张</a>
+                </li>
+                <li>
+                    <label for=""></label>
+                    <el-button type="danger" plain class="btn" @click="reg">立即注册</el-button>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <script src="../lib/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../lib/element/index.js"></script>
+    <script>
+        new Vue({
+            el: '.register',
+            data() {
+                return {
+                    user: "",
+                    pwd: '',
+                    userflag: "",
+                    pwdflag: "",
+                    code: '',
+                    usercode: '',
+                    flag: false,
+                    strength: ''
+                }
+            },
+            watch: {
+                user(val) {
+                    // console.log(val)
+                    axios.get(`./php/select.php?names=${val}`).then(res => {
+                        if (res.data == 'ok') {
+                            this.userflag = '✔';
+                            this.flag = true;
+                        } else {
+                            this.userflag = '✘';
+                            this.flag = false;
+                        }
+                        console.log(this.flag)
+                    })
+                },
+                pwd(val) {
+                    if (val.length >= 6) {
+                        this.pwdflag = '✔';
+                        var a = 0;
+                        var num = /[0-9]/;
+                        var xiao = /[a-z]/;
+                        var da = /[A-Z]/;
+                        num.test(val) ? a++ : '';
+                        xiao.test(val) ? a++ : '';
+                        da.test(val) ? a++ : '';
+                        switch (a) {
+                            case 3:
+                                this.strength = '强';
+                                break;
+                            case 2:
+                                this.strength = '中';
+                                break;
+                            case 1:
+                                this.strength = '弱';
+                        }
+                    } else {
+                        this.pwdflag = '✘';
+                        this.strength = '';
+                    }
+                }
+            },
+            mounted() {
+                this.change();
+            },
+            methods: {
+                reg() {
+                    const { code, pwd, user, usercode, flag } = this;
+                    if (!flag || !user) {
+                        this.$message.error("用户名不可用");
+                        return
+                    }
+
+                    if (pwd.length < 6) {
+                        this.$message.error('密码小于6位');
+                        return
+                    }
+                    if (usercode != code) {
+                        this.$message.error('验证码不正确');
+                        return
+                    }
+                    let url = `./php/reg.php?names=${user}&pwd=${pwd}`
+                    axios.get(url).then(res => {
+                        if (res.data == 'ok') {
+                            this.$message({
+                                message: '注册成功,俩秒后自动跳转登录',
+                                type: 'success'
+                            });
+                            setTimeout(() => {
+                                window.location.href = './login.html';
+                            }, 2000)
+
+                        }
+                    })
+                },
+                change() {
+                    this.code = draw().trim();
+                    console.log(this.code)
+                }
+            },
+        })
+        function draw() {
+            function randomRgbColor() { //随机生成RGB颜色
+                var r = Math.floor(Math.random() * 256); //随机生成256以内r值
+                var g = Math.floor(Math.random() * 256); //随机生成256以内g值
+                var b = Math.floor(Math.random() * 256); //随机生成256以内b值
+                return "rgb(" + r + "," + g + "," + b + ")"; //返回rgb(r,g,b)格式颜色
+            }
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            canvas.width = 120;
+            canvas.height = 40;
+            context.strokeRect(0, 0, 120, 40);
+            var arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+            var aLength = arr.length;
+            var code = '';
+            for (var i = 0; i <= 3; i++) {
+                var x = 20 + i * 20;
+                var y = 20 + Math.random() * 10;
+                var j = Math.floor(Math.random() * aLength);
+                var deg = Math.random() * 90 * Math.PI / 180;//随机弧度
+                var txt = arr[j];
+                code += txt;
+                context.fillStyle = randomRgbColor();
+                context.font = "bold 20px 微软雅黑";
+                //修改坐标原点和旋转角度
+                context.translate(x, y);
+                context.rotate(deg);
+                context.fillText(txt, 0, 0);
+                //恢复坐标原点和旋转角度
+                context.rotate(-deg);
+                context.translate(-x, -y);
+            }
+
+            //干扰线
+            for (var i = 0; i < 8; i++) {
+                context.strokeStyle = randomRgbColor();
+                context.beginPath();
+                context.moveTo(Math.random() * 120, Math.random() * 40);
+                context.lineTo(Math.random() * 120, Math.random() * 40);
+                context.stroke();
+            }
+            /**绘制干扰点**/
+            for (var i = 0; i < 20; i++) {
+                context.fillStyle = randomRgbColor();
+                context.beginPath();
+                context.arc(Math.random() * 120, Math.random() * 40, 1, 0, 2 * Math.PI);
+                context.fill();
+            }
+            return code
+        }
+    </script>
+</body>
+
+</html>

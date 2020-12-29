@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/reg.css">
+    <script src="./lib/vue.min.js"></script>
+    <script src="./lib/axios.js"></script>
+    <link rel="stylesheet" href="./lib/element/index.css">
+</head>
+
+<body>
+    <div class="test_box">
+        <div class="content">
+            <div>考试系统欢迎你的使用</div>
+            <div>You are welcome to use the examination system</div>
+            <div class="form">
+                <ul>
+
+                    <li>
+                        <label>用户名:</label>
+                        <span>{{ user }}</span>
+                    </li>
+                    <li>
+                        <label>身份证号:</label>
+                        <span>{{ card }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="reg">
+                <el-button :plain="true" aglin="center" v-show="flag" @click="start">开始考试</el-button>
+                <el-button :plain="true" aglin="center" v-show="!flag" @click="window.location.href='grade.html'">成绩查询
+                </el-button>
+                <el-button class="f_r" @click="exit" :plain="true" aglin="center">退出考试</el-button>
+            </div>
+        </div>
+    </div>
+    <script src="./lib/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="./lib/element/index.js"></script>
+
+    <script>
+        // console.log(axios.get)
+        // Vue.use(axios)
+        new Vue({
+            el: '.test_box',
+            data() {
+                return {
+                    flag: true,
+                    user: '111',
+                    card: "1111",
+                }
+            },
+            mounted() {
+                this.ajax();
+            },
+            methods: {
+                ajax() {
+                    this.card = window.sessionStorage.getItem('user_codes');
+                    if (!this.card) {
+                        window.location.href = './login.html';
+                    }
+                    axios.get(`./php/select.php?card=${this.card}`).then(res => {
+                        if (res.data[0].flag) {
+                            this.flag = true;
+                        } else {
+                            this.flag = false;
+                        }
+                        this.user = res.data.name;
+                    })
+                }
+                , exit() {
+                    window.sessionStorage.removeItem('user_codes');
+                    window.location.href = "./index.html"
+                },
+                start() {
+                    var url = `./php/times.php?card=${this.card}`;
+                    axios.get(url).then(res => {
+                        if (res.data == 'ok' || res.data == 'yet') {
+                            window.location.href = 'test.html'
+                        } else if (res.data == 'reg') {
+                            this.$massage.error('您没有注册,俩秒后自动跳转')
+                            setTimeout(() => {
+                                window.location.href = "./reg.html";
+                            }, 2000)
+                        }
+                    })
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/reg.css">
+    <script src="./lib/vue.min.js"></script>
+    <script src="./lib/axios.js"></script>
+    <link rel="stylesheet" href="./lib/element/index.css">
+</head>
+
+<body>
+    <div class="test_box">
+        <div class="content">
+            <div>考试系统欢迎你的使用</div>
+            <div>You are welcome to use the examination system</div>
+            <div class="form">
+                <ul>
+                    <li>
+                        <label>用户名:</label>
+                        <input type="text" class="user_info" id="user" v-model="user" placeholder="请输入用户名">
+                    </li>
+                    <li>
+                        <label>身份证号:</label>
+                        <input type="text" class="user_info" id="card" v-model="card" placeholder="请输入身份证号">
+                    </li>
+                    <li>
+                        <label>密 码:</label>
+                        <input type="password" class="user_info" v-model="pwd" id="pwd" placeholder="请输入密码">
+                    </li>
+                </ul>
+            </div>
+            <div class="reg">
+                <el-button :plain="true" @click="reg">注册</el-button>
+            </div>
+        </div>
+    </div>
+    <script src="./lib/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="./lib/element/index.js"></script>
+
+    <script>
+        // console.log(axios.get)
+        // Vue.use(axios)
+        new Vue({
+            el: '.test_box',
+            data() {
+                return {
+                    user: "",
+                    card: "",
+                    pwd: ''
+                }
+            },
+            mounted() {
+                if (window.sessionStorage.getItem('user_codes')) {
+                    window.location.href = "./user_info.html"
+                };
+            },
+            methods: {
+                reg() {
+                    const { user, card, pwd } = this;
+                    if (user.length == 0) {
+                        this.$message.error('请填写用户名');
+                        return false
+                    }
+                    var reg = /^[1-9]\d{5}(18|19|20|(3\d))\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+                    if (!reg.test(card)) {
+                        this.$message.error('请填写正确的身份证号')
+                        return false
+                    }
+                    if (pwd.lengrh < 6) {
+                        this.$message.error('密码不能小于6位')
+                        return false
+                    }
+                    axios.get(`./php/reg_check.php?card=${card}`).then((res) => {
+                        if (res.data == 'ok') {
+                            axios.get(`./php/reg.php?user=${user}&card=${card}&pwd=${pwd}`).then(res => {
+                                if (res.data == 'ok') {
+                                    this.$message({
+                                        message: '注册成功,俩秒后自动跳转登录',
+                                        type: 'success'
+                                    });
+                                    setTimeout(() => {
+                                        window.location.href = 'login.html';
+                                    }, 2000)
+
+                                } else {
+                                    this.$message.error('注册失败');
+                                }
+                            })
+
+                        } else {
+                            this.$message.error('注册过了,请登录');
+                        }
+                    })
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>

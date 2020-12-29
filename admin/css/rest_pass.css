@@ -1,0 +1,36 @@
+.reset_view{
+    width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+}
+label{
+    display: inline-block;
+    width: 55px;
+    text-align: center;
+}
+form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+input[type=text]{
+    width: 100px;
+    height: 25px;
+    padding: 5px;
+    margin: 5px;
+}
+table{
+    width: 800px;
+    margin: 10px auto;
+    border: 1px solid #ccc;
+}
+table tr{
+    line-height: 40px;
+    text-align: center;
+}
+.end input{
+    /* padding: 0 10px; */
+    width: 40px;
+}

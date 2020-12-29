@@ -1,0 +1,8 @@
+#ms{
+    text-align: center;
+    margin: 0 auto;
+    line-height: 60px;
+}
+tr:last-child{
+    text-align: center;
+}

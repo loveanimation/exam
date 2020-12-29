@@ -1,0 +1,114 @@
+#app{
+    .header{
+        width: 100%;
+        height: 8vh;
+        background-color: aqua;
+        .header_l{
+            color: #fff;
+            font-size: 20px;
+            width: 160px;
+            text-align: center;
+            height: 8vh;
+            line-height: 8vh;
+            padding-left: 20px;
+            float: left;
+        }
+        .header_r{
+            width: 500px;
+            height: 8vh;
+            line-height: 8vh;
+            float: right;
+            padding-right: 20px;
+            font-size: 14px;
+            color: #fff;
+            .header_r_time{
+                width: 150px;
+                float: left;
+            }
+            .header_r_user{
+                float: right;
+                span{
+                    display: inline-block;
+                    &:nth-child(2){
+                        margin-left: 10px;
+                    }
+                }
+            }
+        }
+    }
+    .test_info{
+        width: 100%;
+        overflow: hidden;
+        height: 92vh;
+        .test_info_l{
+            width: 250px;
+            float: left;
+            background-color: #fff;
+            height: 92vh;
+            border-right: 1px solid #eee;
+            .test_info_list{
+                h4{
+                    font-size: 14px;
+                    text-align: center;
+                    height: 60px;
+                    line-height: 60px;
+                    font-weight: bold;
+                }
+                .el-button,.el-buttton--default{
+                    // font-size: 12px;
+                    background-color: #ddd;
+                    margin: 5px;
+                    width: 25px;
+                    height: 25px;
+                    line-height: 25px;
+                    text-align: center;
+                    padding: 0;
+                }
+            }
+        }
+        .test_info_r{
+            overflow: hidden;
+            // float: left;
+           
+            .test_info_item{height: 80vh;border-bottom: 1px solid #eee;}
+            .test_info_state{
+                width: 100%;
+                text-align: center;
+                height: 10vh;
+                line-height: 10vh;
+                border-bottom: 1px solid #eee;
+            }
+            .tishi{
+                color: #F56C6C;
+                font-weight: bold;
+            }
+            .test_info_aniswer{
+                margin: 0 30px;
+            }
+            p{
+                font-size: 20px;
+                height: 60px;
+                line-height: 60px;
+            }
+            li{
+                line-height: 50px;
+                font-size: 14px;
+                color: #666;
+                margin-left: 20px;
+            }
+            .el-radio,.el-checkbox{
+                line-height: 50px;
+                margin-left: 20px;
+                display: block;
+            }
+            .option{
+                display: flex;
+                justify-content: flex-end;
+                margin: 5px;
+                .el-button,.is-round,.el-button--primary{
+                    background:linear-gradient(90deg,#0162c8,#55e7fc) ;
+                }
+            }
+        }
+    }
+}
